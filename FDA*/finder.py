@@ -119,26 +119,103 @@ class Finder(object):
             else than True (used for bi-directional algorithms)
 
         '''
-        # calculate cost from current node (parent) to the next node (neighbor)
-        ng = self.calc_cost(parent, node)
+        print(parent.x)
+        print(parent.y)
+        print(node.x)
+        print(node.y)
 
-        if not node.opened or ng < node.g:
-            node.g = ng
-            node.h = node.h or \
-                self.apply_heuristic(node, end) * self.weight
-            # f is the estimated total cost from start to goal
-            node.f = node.g + node.h
-            node.parent = parent
+        if self.line_of_sight(parent.parent, node):
 
-            if not node.opened:
-                heapq.heappush(open_list, node)
-                node.opened = open_value
-            else:
-                # the node can be reached with smaller cost.
-                # Since its f value has been updated, we have to
-                # update its position in the open list
-                open_list.remove(node)
-                heapq.heappush(open_list, node)
+
+            # calculate cost from current node (parent) to the next node (neighbor)
+            ng = self.calc_cost(parent.parent, node)
+
+            if not node.opened or ng < node.g:
+                node.g = ng
+                node.h = node.h or \
+                         self.apply_heuristic(node, end) * self.weight
+                # f is the estimated total cost from start to goal
+                node.f = node.g + node.h
+                node.parent = parent.parent
+
+                if not node.opened:
+                    heapq.heappush(open_list, node)
+                    node.opened = open_value
+                else:
+                    # the node can be reached with smaller cost.
+                    # Since its f value has been updated, we have to
+                    # update its position in the open list
+                    open_list.remove(node)
+                    heapq.heappush(open_list, node)
+
+        else:
+            # calculate cost from current node (parent) to the next node (neighbor)
+            ng = self.calc_cost(parent, node)
+
+            if not node.opened or ng < node.g:
+                node.g = ng
+                node.h = node.h or \
+                         self.apply_heuristic(node, end) * self.weight
+                # f is the estimated total cost from start to goal
+                node.f = node.g + node.h
+                node.parent = parent
+
+                if not node.opened:
+                    heapq.heappush(open_list, node)
+                    node.opened = open_value
+                else:
+                    # the node can be reached with smaller cost.
+                    # Since its f value has been updated, we have to
+                    # update its position in the open list
+                    open_list.remove(node)
+                    heapq.heappush(open_list, node)
+
+
+    def line_of_sight(self, s, s_prime):
+        x0 = s.x
+        y0 = s.y
+        x1 = s_prime.x
+        y1 = s_prime.y
+
+        dx = abs(x1 - x0)
+        dy = abs(y1 - y0)
+        sx = 1 if x0 < x1 else -1
+        sy = 1 if y0 < y1 else -1
+
+        f = 0
+
+        if dx >= dy:
+            while x0 != x1:
+                f = f + dy
+
+                if f >= dx:
+                    if Grid.walkable[x0 + ((sx - 1) / 2), y0 + ((sy - 1) / 2)]:
+                        return False
+                    y0 = y0 + sy
+                    f = f - dx
+                if f != 0 and Grid.walkable[x0 + ((sx - 1) / 2), y0 + (sy - 1) / 2]:
+                    return False
+                if dy == 0 and Grid.walkable[x0 + (sx-1)/2, y0] and Grid.walkable[x0 + ((sx-1) / 2), y0-1]:
+                    return False
+                x0 = x0 + sx
+
+        else:
+            while y0 != y1:
+                f = f + dx
+                if f >= dy:
+
+                    if Grid.walkable[x0 + (sx-1) / 2, y0 + (sy-1) / 2]:
+                        return False
+                    x0 = x0 + sx
+                    f = f- dy
+                if f != 0 and Grid.walkable[x0 + (sx-1) / 2, y0 + (sy-1) / 2]:
+                    return False
+                if dx == 0 and Grid.walkable[x0, y0 + (sy-1) / 2] and Grid.walkable[x0-1, y0 + (sy-1) / 2]:
+                    return False
+                y0 = y0 + sy
+
+        return True
+
 
     def find_path(self, start, end, grid):
         """
