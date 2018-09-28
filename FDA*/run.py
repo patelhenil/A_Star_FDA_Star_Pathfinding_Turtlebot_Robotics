@@ -27,12 +27,22 @@ matrix =[
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     ]
+'''matrix = [
+    [1,0,1,1],
+    [1,1,1,0]
+]'''
+
+'''matrix = [
+    [1,1,0,0,1],
+    [1,1,1,1,1],
+    [1,1,1,1,1],
+    [1,0,1,1,1]
+]'''
 grid = Grid(matrix=matrix)
 print(grid.height, grid.width)
 
 start = grid.node(0,0)
 end = grid.node(10,20)
-
 finder = AStarFinder(diagonal_movement=DiagonalMovement.always)
 path, runs = finder.find_path(start, end, grid)
 

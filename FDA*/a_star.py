@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import heapq  # used for the so colled "open list" that stores known nodes
-from heuristic import octile
+from heuristic import euclidean
 from util import backtrace
 from diagonal_movement import DiagonalMovement
 from finder import Finder, TIME_LIMIT, MAX_RUNS, BY_END
@@ -39,7 +39,7 @@ class AStarFinder(Finder):
             else:
                 # When diagonal movement is allowed the manhattan heuristic is
                 # not admissible it should be octile instead
-                self.heuristic = octile
+                self.heuristic = euclidean
 
     def check_neighbors(self, start, end, grid, open_list,
                         open_value=True, backtrace_by=None):
@@ -48,8 +48,32 @@ class AStarFinder(Finder):
         (or return path if we found the end)
         """
         # pop node with minimum 'f' value
+
         node = heapq.nsmallest(1, open_list)[0]
         open_list.remove(node)
+
+        arr = []
+
+        while(open_list):
+            newNode = heapq.nsmallest(1, open_list)[0]
+            open_list.remove(newNode)
+
+            if(newNode.f != node.f):
+                arr.append(newNode)
+                break
+            if( newNode.h < node.h):
+                arr.append(node)
+                node = newNode
+            else:
+                arr.append(newNode)
+
+        for n in arr:
+            heapq.heappush(open_list,n)
+
+
+
+
+
         node.closed = True
 
         # if reached the end position, construct the path and return it

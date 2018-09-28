@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import heapq  # used for the so colled "open list" that stores known nodes
 import time  # for time limitation
+import math
+
 from util import SQRT2
 from diagonal_movement import DiagonalMovement
 from grid import Grid
@@ -59,12 +61,14 @@ class Finder(object):
         get the distance between current node and the neighbor (cost)
         """
         ng = node_a.g
-        if node_b.x - node_a.x == 0 or node_b.y - node_a.y == 0:
+        #if node_b.x - node_a.x == 0 or node_b.y - node_a.y == 0:
             # direct neighbor - distance is 1
-            ng += 1
-        else:
+        #    ng += 1
+        #else:
             # not a direct neighbor - diagonal movement
-            ng += SQRT2
+        #    ng += SQRT2
+
+        ng = math.sqrt((node_a.x-node_b.x)**2 + (node_a.y-node_b.y)**2)
 
         # weight for weighted algorithms
         if self.weighted:
@@ -119,23 +123,27 @@ class Finder(object):
             else than True (used for bi-directional algorithms)
 
         '''
-        print(parent.x)
-        print(parent.y)
-        print(node.x)
-        print(node.y)
+       # print(f'parent ({parent.x},{parent.y})')
+        #print(f"Node ({node.x},{node.y})")
 
-        if self.line_of_sight(parent.parent, node):
-
-
+        if parent.parent is not None and self.line_of_sight(grid,parent.parent, node):
             # calculate cost from current node (parent) to the next node (neighbor)
             ng = self.calc_cost(parent.parent, node)
+            print(f"ng ({ng})")
+            print(f"parent.parent.g ({parent.parent.g})")
+            print(f"node.g before update ({node.g})")
 
-            if not node.opened or ng < node.g:
-                node.g = ng
+            if not node.opened or ng + parent.parent.g < node.g:
+                node.g = ng + parent.parent.g
                 node.h = node.h or \
                          self.apply_heuristic(node, end) * self.weight
                 # f is the estimated total cost from start to goal
                 node.f = node.g + node.h
+
+                print(f'parent.parent ({parent.parent.x},{parent.parent.y})')
+                print(f"node is ({node.x},{node.y}) and f is {node.f}, g is {node.g}, h is {node.h}")
+
+
                 node.parent = parent.parent
 
                 if not node.opened:
@@ -152,13 +160,16 @@ class Finder(object):
             # calculate cost from current node (parent) to the next node (neighbor)
             ng = self.calc_cost(parent, node)
 
-            if not node.opened or ng < node.g:
-                node.g = ng
+            if not node.opened or ng + parent.g < node.g:
+                node.g = ng + parent.g
                 node.h = node.h or \
                          self.apply_heuristic(node, end) * self.weight
                 # f is the estimated total cost from start to goal
                 node.f = node.g + node.h
                 node.parent = parent
+
+                print(f'parent ({parent.x},{parent.y})')
+                print(f"node is ({node.x},{node.y}) and f is {node.f}, g is {node.g}, h is {node.h}")
 
                 if not node.opened:
                     heapq.heappush(open_list, node)
@@ -170,8 +181,10 @@ class Finder(object):
                     open_list.remove(node)
                     heapq.heappush(open_list, node)
 
+        print("-----------------")
 
-    def line_of_sight(self, s, s_prime):
+
+    def line_of_sight(self,grid, s, s_prime):
         x0 = s.x
         y0 = s.y
         x1 = s_prime.x
@@ -189,13 +202,13 @@ class Finder(object):
                 f = f + dy
 
                 if f >= dx:
-                    if Grid.walkable[x0 + ((sx - 1) / 2), y0 + ((sy - 1) / 2)]:
+                    if Grid.walkable(grid, int(x0 + (sx - 1) / 2), int(y0 + (sy - 1) / 2)):
                         return False
                     y0 = y0 + sy
                     f = f - dx
-                if f != 0 and Grid.walkable[x0 + ((sx - 1) / 2), y0 + (sy - 1) / 2]:
+                if f != 0 and Grid.walkable(grid,int(x0 + (sx - 1) / 2), int(y0 + (sy - 1) / 2)):
                     return False
-                if dy == 0 and Grid.walkable[x0 + (sx-1)/2, y0] and Grid.walkable[x0 + ((sx-1) / 2), y0-1]:
+                if dy == 0 and Grid.walkable(grid,int(x0 + (sx-1)/2), int(y0)) and Grid.walkable(grid,int(x0 + ((sx-1) / 2)), int(y0-1)):
                     return False
                 x0 = x0 + sx
 
@@ -204,13 +217,13 @@ class Finder(object):
                 f = f + dx
                 if f >= dy:
 
-                    if Grid.walkable[x0 + (sx-1) / 2, y0 + (sy-1) / 2]:
+                    if Grid.walkable(grid,int(x0 + (sx-1) / 2), int(y0 + (sy-1) / 2)):
                         return False
                     x0 = x0 + sx
                     f = f- dy
-                if f != 0 and Grid.walkable[x0 + (sx-1) / 2, y0 + (sy-1) / 2]:
+                if f != 0 and Grid.walkable(grid,int(x0 + (sx-1) / 2), int(y0 + (sy-1) / 2)):
                     return False
-                if dx == 0 and Grid.walkable[x0, y0 + (sy-1) / 2] and Grid.walkable[x0-1, y0 + (sy-1) / 2]:
+                if dx == 0 and Grid.walkable(grid,int(x0), int(y0 + (sy-1) / 2)) and Grid.walkable(grid,int(x0-1), int(y0 + (sy-1) / 2)):
                     return False
                 y0 = y0 + sy
 
