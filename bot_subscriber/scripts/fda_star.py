@@ -3,7 +3,7 @@ import heapq  # used for the so colled "open list" that stores known nodes
 from heuristic import octile
 from util import backtrace
 from diagonal_movement import DiagonalMovement
-from finder import Finder, TIME_LIMIT, MAX_RUNS, BY_END
+from fdafinder import Finder, TIME_LIMIT, MAX_RUNS, BY_END
 
 #from a_star.heuristic import euclidean
 

@@ -119,12 +119,9 @@ class Finder(object):
             else than True (used for bi-directional algorithms)
 
         '''
-        print(parent.x)
-        print(parent.y)
-        print(node.x)
-        print(node.y)
 
-        if self.line_of_sight(parent.parent, node):
+
+        if parent.parent is not None and self.line_of_sight(grid,parent.parent, node):
 
 
             # calculate cost from current node (parent) to the next node (neighbor)
@@ -171,7 +168,7 @@ class Finder(object):
                     heapq.heappush(open_list, node)
 
 
-    def line_of_sight(self, s, s_prime):
+    def line_of_sight(self,grid, s, s_prime):
         x0 = s.x
         y0 = s.y
         x1 = s_prime.x
@@ -189,13 +186,13 @@ class Finder(object):
                 f = f + dy
 
                 if f >= dx:
-                    if Grid.walkable[x0 + ((sx - 1) / 2), y0 + ((sy - 1) / 2)]:
+                    if Grid.walkable(grid,x0 + ((sx - 1) / 2), y0 + ((sy - 1) / 2)) == False:
                         return False
                     y0 = y0 + sy
                     f = f - dx
-                if f != 0 and Grid.walkable[x0 + ((sx - 1) / 2), y0 + (sy - 1) / 2]:
+                if f != 0 and Grid.walkable(grid,x0 + ((sx - 1) / 2), y0 + (sy - 1) / 2) == False:
                     return False
-                if dy == 0 and Grid.walkable[x0 + (sx-1)/2, y0] and Grid.walkable[x0 + ((sx-1) / 2), y0-1]:
+                if dy == 0 and Grid.walkable(grid,x0 + (sx-1)/2, y0) == False and Grid.walkable(grid,x0 + ((sx-1) / 2), y0-1) == False:
                     return False
                 x0 = x0 + sx
 
@@ -204,13 +201,13 @@ class Finder(object):
                 f = f + dx
                 if f >= dy:
 
-                    if Grid.walkable[x0 + (sx-1) / 2, y0 + (sy-1) / 2]:
+                    if Grid.walkable(grid,x0 + (sx-1) / 2, y0 + (sy-1) / 2) == False:
                         return False
                     x0 = x0 + sx
                     f = f- dy
-                if f != 0 and Grid.walkable[x0 + (sx-1) / 2, y0 + (sy-1) / 2]:
+                if f != 0 and Grid.walkable(grid,x0 + (sx-1) / 2, y0 + (sy-1) / 2) == False:
                     return False
-                if dx == 0 and Grid.walkable[x0, y0 + (sy-1) / 2] and Grid.walkable[x0-1, y0 + (sy-1) / 2]:
+                if dx == 0 and Grid.walkable(grid,x0, y0 + (sy-1) / 2) == False and Grid.walkable(grid,x0-1, y0 + (sy-1) / 2) == False:
                     return False
                 y0 = y0 + sy
 
