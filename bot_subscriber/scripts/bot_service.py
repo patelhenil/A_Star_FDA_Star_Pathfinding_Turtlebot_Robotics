@@ -9,6 +9,7 @@ from geometry_msgs.msg import Point
 from diagonal_movement import DiagonalMovement
 from grid import Grid
 from a_star import AStarFinder
+from fda_star import FDAStarFinder
 from turtlebot_ctrl.msg import TurtleBotState
 
 from util import *
@@ -17,7 +18,7 @@ from util import *
 
 
 
-def main():
+def main(choice):
 	linesFromFile = []
 
 	with open("/home/duy/catkin_ws/src/comprobfall2018-hw1/turtlebot_maps/map_1.txt") as f:
@@ -145,12 +146,16 @@ def main():
 	grid = Grid(matrix=matrix)
 
 
-	x=1
+	x=6
 	start = grid.node(int(startList[x][0]), int(startList[x][1]))
 	end = grid.node(int(goalList[x][0]), int(goalList[x][1]))
 
 
-	finder = AStarFinder(diagonal_movement=DiagonalMovement.always)
+	if choice == "astar":
+    		finder = AStarFinder(diagonal_movement=DiagonalMovement.always)
+	else:
+    		finder = FDAStarFinder(diagonal_movement=DiagonalMovement.always)
+	
 	path, runs = finder.find_path(start, end, grid)
 
 	print('operations:', runs, 'path length:', len(path))
@@ -161,8 +166,8 @@ def main():
 
 	
 	for coor in path:
-		x = float(coor[0]/2) - offset_x
-		y = float(coor[1]/2) - offset_y
+		x = float(coor[0])/2 - offset_x
+		y = float(coor[1])/2 - offset_y
 
 		print("moving to {},{}",x,y)
 
@@ -178,5 +183,11 @@ def main():
 		print("-------")
 
 if __name__ == '__main__':
-	main()
+	choice = "astar"
+	if len(sys.argv) == 2:
+    		if sys.argv[1] == "fdastar":
+        		choice = "fdastar"
+
+
+	main(choice)
 	

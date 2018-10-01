@@ -7,6 +7,8 @@ def callback(msg):
 	x = msg.x
 	y = msg.y
 	goal_reached = msg.goal_reached
+
+	#if goal_reached == True:
 	rospy.loginfo('x: {}, y: {}, goal_reached: {}'.format(x,y,goal_reached))
 	
 
